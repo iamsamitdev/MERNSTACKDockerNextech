@@ -1,0 +1,4 @@
+mongodb/db/
+mongodb/mogodb-data/
+nodejs/node_modules/
+frontend/node_modules/

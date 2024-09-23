@@ -1,0 +1,59 @@
+services:
+
+  # MongoDB Service
+  mongodb:
+    build: mongodb/
+    image: mern_mongodb:1.0
+    container_name: mern_mongodb
+    volumes:
+      - ./mongodb/db:/data/db
+    ports:
+      - 27017:27017
+    restart: always
+    networks:
+      - web_network
+  
+  # NodeJS Service
+  nodejs:
+    depends_on:
+      - mongodb
+    build: nodejs/
+    image: mern_nodejs:1.0
+    container_name: mern_nodejs
+    volumes:
+      - /usr/app/node_modules
+      - ./nodejs:/usr/app
+    ports:
+      - 4000:3000
+    environment:
+      - DATABASE_USER=admin
+      - DATABASE_PASSWORD=1234
+      - DATABASE_HOST=mongodb
+    restart: always
+    networks:
+      - web_network
+
+  # React Service
+  react:
+    depends_on:
+      - nodejs
+    # build: frontend/
+    build: 
+      context: frontend/
+      dockerfile: Dockerfile.prod
+    image: mern_react:1.0
+    container_name: mern_react
+    volumes:
+      - /usr/app/node_modules
+      - ./frontend:/usr/app
+    ports:
+      # - 8181:3000 # Development
+      - 8181:80 # Production
+    restart: always
+    networks:
+      - web_network
+
+networks:
+  web_network:
+    name: mern_network
+    driver: bridge
